@@ -1,5 +1,6 @@
 const fs = require('fs');
 const databaseDir = './database.txt'
+const path = require("path");
 
 
 const promiseAppendFile = (fileName, content) => {
@@ -22,8 +23,7 @@ const promiseWriteFile = (fileName, content) => {
                 reject(err);
             } else {
                 resolve();
-            }
-            
+            }    
         })
     })
 } 
@@ -84,7 +84,7 @@ const checkBlogExist = (blogName) => {
 
 const checkPostExist = (blogName, postTitle) => {
     return new Promise((resolve,reject) => {
-        if (fs.existsSync(`./${blogName}/${postTitle}.txt`)) {
+        if (fs.existsSync(`./${blogName}/${postTitle}`)) {
             resolve();
         } else {
             reject(new Error(`The post ${postTitle} does not exist!`));
@@ -92,11 +92,54 @@ const checkPostExist = (blogName, postTitle) => {
     });
 }
 
+const checkIfNewPost = (blogName, postTitle) => {
+    filePath = path.join(blogName, postTitle)
+    return new Promise((resolve,reject) => {
+        if (fs.existsSync(filePath)) {
+            filePath = filePath + "_"
+            resolve(filePath)
+        } else {
+            resolve(filePath)
+        }
+        if (err) {
+            reject(err)
+        }
+    });
+}
+
 const readPost = (blogName, postTitle) => {
     return new Promise((resolve, reject) => {
-        promiseReadFile(`./${blogName}/${postTitle}.txt`)
+        promiseReadFile(`./${blogName}/${postTitle}`)
             .then((data) => resolve(data))
             .catch(err => reject(err));
+    });
+}
+
+const promiseMakeDirectory = (name) => {
+    return new Promise((resolve, reject) => {
+        fs.mkdir(`./${name}`, (err) => {
+            if (err) {
+                reject(err)
+            } else {
+                console.log("Directory was made!")
+                resolve()
+            }
+        })
+    })
+}
+
+const initializePost = (file, content, folder) => {
+
+    return new Promise((resolve, reject) => {
+        checkBlogExist(folder)
+        .then(() => checkIfNewPost(folder, file))
+        .then((filePath) => {
+            promiseWriteFile(filePath, "likes: 1\nlikedBy: you\n")
+            .then(() => promiseAppendFile(filePath, content))
+            .then(() => resolve() )
+            .catch((err) => console.log(err.message))
+        })
+        .catch(err => reject(err))
     });
 }
 
@@ -127,6 +170,26 @@ const register = (username, password) => {
     });
 }
 
+const createABlog = (blogName) => {
+    return new Promise((resolve, reject) => {
+        promiseMakeDirectory(blogName)
+            .then(() => resolve())
+            .catch(err => reject(err))
+    })
+}
+
+const createPost = (postTitle, postContent, blogName) => {
+
+    if (postTitle.includes(" ")) {
+        postTitle = postTitle.replace(" ", "_")
+    }
+    return new Promise((resolve, reject) => {
+        initializePost(postTitle, postContent, blogName)
+            .then(() => resolve())
+            .catch(err => reject(err))
+    })
+}
+
 const likePostOperation = (postContent, username, blogName, postTitle) => {
     return new Promise((resolve, reject) => {
         const [likes, likedBy, content] = postContent.toString().split('\n')
@@ -134,7 +197,7 @@ const likePostOperation = (postContent, username, blogName, postTitle) => {
         const newLikesNum = Number(likesNum) + 1
         const newLikedBy = likedBy.trim() + ', ' + username
         const newContent = [`likes:${newLikesNum}`, newLikedBy, content].join('\n')
-        promiseWriteFile(`./${blogName}/${postTitle}.txt`,newContent)
+        promiseWriteFile(`./${blogName}/${postTitle}`,newContent)
             .then(() => resolve(`You liked the post ${postTitle}`))
             .catch(err => reject(err))
     })
@@ -165,4 +228,10 @@ register('bosco1', '1234')
     .then((message) => console.log(message))
     .catch((err) => console.log(err.message))
 
-likePost('boscoblog', 'hello1', 'bosco1').catch((err) => console.log(err))
+createABlog("blog").catch(err => console.log(err.message))
+
+createPost("adel", "hello", "blog")
+    .then((message) => console.log(message))
+    .catch((err) => console.log(err))
+
+likePost('blog', 'adel', 'bosco1').catch((err) => console.log(err))
