@@ -101,9 +101,6 @@ const checkIfNewPost = (blogName, postTitle) => {
         } else {
             resolve(filePath)
         }
-        if (err) {
-            reject(err)
-        }
     });
 }
 
@@ -121,8 +118,7 @@ const promiseMakeDirectory = (name) => {
             if (err) {
                 reject(err)
             } else {
-                console.log("Directory was made!")
-                resolve()
+                resolve("Directory was made!")
             }
         })
     })
@@ -136,7 +132,7 @@ const initializePost = (file, content, folder) => {
         .then((filePath) => {
             promiseWriteFile(filePath, "likes: 1\nlikedBy: you\n")
             .then(() => promiseAppendFile(filePath, content))
-            .then(() => resolve() )
+            .then(() => resolve("Post created."))
             .catch((err) => console.log(err.message))
         })
         .catch(err => reject(err))
@@ -173,7 +169,7 @@ const register = (username, password) => {
 const createABlog = (blogName) => {
     return new Promise((resolve, reject) => {
         promiseMakeDirectory(blogName)
-            .then(() => resolve())
+            .then((message) => resolve(message))
             .catch(err => reject(err))
     })
 }
@@ -185,7 +181,7 @@ const createPost = (postTitle, postContent, blogName) => {
     }
     return new Promise((resolve, reject) => {
         initializePost(postTitle, postContent, blogName)
-            .then(() => resolve())
+            .then((message) => resolve(message))
             .catch(err => reject(err))
     })
 }
@@ -198,7 +194,7 @@ const likePostOperation = (postContent, username, blogName, postTitle) => {
         const newLikedBy = likedBy.trim() + ', ' + username
         const newContent = [`likes:${newLikesNum}`, newLikedBy, content].join('\n')
         promiseWriteFile(`./${blogName}/${postTitle}`,newContent)
-            .then(() => resolve(`You liked the post ${postTitle}`))
+            .then(() => resolve(`You liked the post: ${postTitle}`))
             .catch(err => reject(err))
     })
 }
@@ -224,14 +220,18 @@ const likePost = (blogName, postTitle, username) => {
 }
 
 
-register('bosco1', '1234')
-    .then((message) => console.log(message))
-    .catch((err) => console.log(err.message))
+// register('bosco1', '1234')
+//     .then((message) => console.log(message))
+//     .catch((err) => console.log(err.message))
 
-createABlog("blog").catch(err => console.log(err.message))
+// createABlog("blog")
+//     .then((message) => console.log(message))
+//     .catch(err => console.log(err.message))
 
 createPost("adel", "hello", "blog")
     .then((message) => console.log(message))
     .catch((err) => console.log(err))
 
-likePost('blog', 'adel', 'bosco1').catch((err) => console.log(err))
+// likePost('blog', 'adel', 'bosco1')
+//     .then((message) => console.log(message))
+//     .catch((err) => console.log(err))
