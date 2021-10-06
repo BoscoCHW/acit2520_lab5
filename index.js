@@ -1,5 +1,5 @@
 const fs = require('fs');
-const databaseDir = './database.txt'
+const databaseDir = './database'
 const path = require("path");
 
 
@@ -64,7 +64,11 @@ const checkUserExist = (userName) => {
                 const userList = userDataToJson(data);
                 let userExist = false;
                 userExist = userList.reduce((acc, user) => {
-                    if (user.username === userName) return true;
+                    if (user.username === userName) {
+                        return true;
+                    } else {
+                        return acc
+                    }
                 }, false);
                 resolve(userExist);
             })
@@ -224,14 +228,14 @@ register('bosco1', '1234')
     .then((message) => console.log(message))
     .catch((err) => console.log(err.message))
 
-createABlog("blog")
+createABlog("blog1")
     .then((message) => console.log(message))
     .catch(err => console.log(err.message))
 
-createPost("adel", "hello", "blog")
+createPost("adel", "hello", "blog1")
     .then((message) => console.log(message))
     .catch((err) => console.log(err))
 
-likePost('blog', 'adel', 'bosco1')
+likePost('blog1', 'adel', 'bosco1')
     .then((message) => console.log(message))
     .catch((err) => console.log(err))
