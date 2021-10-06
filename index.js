@@ -84,7 +84,7 @@ const checkBlogExist = (blogName) => {
 
 const checkPostExist = (blogName, postTitle) => {
     return new Promise((resolve,reject) => {
-        if (fs.existsSync(`./${blogName}/${postTitle}`)) {
+        if (fs.existsSync(path.join(blogName, postTitle))) {
             resolve();
         } else {
             reject(new Error(`The post ${postTitle} does not exist!`));
@@ -106,7 +106,7 @@ const checkIfNewPost = (blogName, postTitle) => {
 
 const readPost = (blogName, postTitle) => {
     return new Promise((resolve, reject) => {
-        promiseReadFile(`./${blogName}/${postTitle}`)
+        promiseReadFile(path.join(blogName, postTitle))
             .then((data) => resolve(data))
             .catch(err => reject(err));
     });
@@ -220,18 +220,18 @@ const likePost = (blogName, postTitle, username) => {
 }
 
 
-// register('bosco1', '1234')
-//     .then((message) => console.log(message))
-//     .catch((err) => console.log(err.message))
+register('bosco1', '1234')
+    .then((message) => console.log(message))
+    .catch((err) => console.log(err.message))
 
-// createABlog("blog")
-//     .then((message) => console.log(message))
-//     .catch(err => console.log(err.message))
+createABlog("blog")
+    .then((message) => console.log(message))
+    .catch(err => console.log(err.message))
 
 createPost("adel", "hello", "blog")
     .then((message) => console.log(message))
     .catch((err) => console.log(err))
 
-// likePost('blog', 'adel', 'bosco1')
-//     .then((message) => console.log(message))
-//     .catch((err) => console.log(err))
+likePost('blog', 'adel', 'bosco1')
+    .then((message) => console.log(message))
+    .catch((err) => console.log(err))
